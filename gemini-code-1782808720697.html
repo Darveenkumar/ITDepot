@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ITDepot - DEO Scuderia Racing</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%;
+  height: 500px;
+  overflow: hidden;
+  background: transparent; /* Transparent to overlay on your background */
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Root ── */
+.root {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 clamp(24px, 5vw, 72px);
+  background: transparent;
+}
+
+/* ── Telemetry Speed Lines ── */
+.telemetry-field {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+.speed-line {
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ef4444, transparent);
+  opacity: 0;
+  animation: speedStream var(--dur) var(--delay) infinite linear;
+}
+@keyframes speedStream {
+  0%   { opacity: 0; transform: translateX(-200px) scaleX(0.5); }
+  30%  { opacity: var(--op); }
+  70%  { opacity: var(--op); filter: drop-shadow(0 0 4px #ef4444); }
+  100% { opacity: 0; transform: translateX(calc(100vw + 200px)) scaleX(2); }
+}
+
+/* ── Floating Dashboard Icons ── */
+#icon-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+.ficon {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ficon svg { width: 22px; height: 22px; }
+
+/* ── DEO Base Wrapper ── */
+.cleo-wrap {
+  position: relative;
+  z-index: 20;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: clamp(14px, 2.8vh, 28px);
+  margin-bottom: -6px;
+}
+.cleo-slide {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  will-change: transform;
+}
+/* Racing Crimson Ambient Glow */
+.cleo-slide::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -55%);
+  width: 280px; height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(239,68,68,0.08) 0%, rgba(6,8,12,0) 65%);
+  pointer-events: none;
+  z-index: -1;
+}
+.cleo-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  animation: hoverfloat 3s ease-in-out infinite;
+  cursor: pointer;
+}
+@keyframes hoverfloat {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  50%     { transform: translateY(-10px) rotate(0.5deg); }
+}
+.cleo-svg-wrap {
+  filter: drop-shadow(0 16px 30px rgba(0,0,0,0.6));
+  width: clamp(88px, 9vw, 120px);
+}
+.cleo-label {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: clamp(10px, 1vw, 13px);
+  letter-spacing: .15em;
+  color: #ffffff;
+  opacity: 0.9;
+}
+
+/* ── Wordmark ── */
+.wordmark-section {
+  position: relative;
+  z-index: 20;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 0 auto;
+  animation: fadeUp .8s .2s both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+.wordmark {
+  font-family: 'Syne', sans-serif;
+  font-size: 120px;
+  line-height: .88;
+  letter-spacing: -.04em;
+  display: flex;
+  align-items: baseline;
+  gap: .06em;
+  white-space: nowrap;
+}
+.wm-it {
+  color: #ffffff;
+  font-weight: 600; /* Slightly thicker balanced profile */
+}
+.wm-depot {
+  font-weight: 800; /* Thicker Highlight */
+  background: linear-gradient(90deg, #ef4444, #3b82f6, #ef4444);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% 100%;
+  animation: telemetryFlow 6s linear infinite;
+}
+@keyframes telemetryFlow { 0% { background-position: 0%; } 100% { background-position: 200%; } }
+
+/* ── Tagline ── */
+.tagline-row {
+  margin-top: 10px;
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  animation: fadeUp .8s .4s both;
+}
+.tag-left, .tag-right {
+  font-size: clamp(11px, 1.05vw, 14px);
+  color: rgba(255,255,255,.5);
+  font-weight: 300;
+  letter-spacing: .05em;
+  white-space: nowrap;
+}
+.tag-left strong { color: #ef4444; font-weight: 500; }
+</style>
+</head>
+<body>
+
+<div class="root" id="root">
+  <div class="telemetry-field" id="speedField"></div>
+  <div id="icon-layer"></div>
+
+  <div class="cleo-wrap">
+    <div class="cleo-slide" id="cleoSlide">
+      <div class="cleo-inner" id="cleoInner">
+        <div class="cleo-svg-wrap">
+          <svg viewBox="0 0 220 280" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%">
+            <defs>
+              <linearGradient id="suitGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#991b1b"/>
+                <stop offset="25%" stop-color="#dc2626"/>
+                <stop offset="44%" stop-color="#ef4444"/>
+                <stop offset="46%" stop-color="#ffffff"/>
+                <stop offset="54%" stop-color="#ffffff"/>
+                <stop offset="56%" stop-color="#ef4444"/>
+                <stop offset="75%" stop-color="#dc2626"/>
+                <stop offset="100%" stop-color="#991b1b"/>
+              </linearGradient>
+
+              <linearGradient id="helmetGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#cbd5e1"/>
+                <stop offset="20%" stop-color="#f1f5f9"/>
+                <stop offset="50%" stop-color="#ffffff"/>
+                <stop offset="80%" stop-color="#f1f5f9"/>
+                <stop offset="100%" stop-color="#e2e8f0"/>
+              </linearGradient>
+
+              <radialGradient id="gloveGrad" cx="38%" cy="28%" r="68%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="75%" stop-color="#e2e8f0"/>
+                <stop offset="100%" stop-color="#cbd5e1"/>
+              </radialGradient>
+
+              <radialGradient id="ckG" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="rgba(255,255,255,.35)"/>
+                <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+              </radialGradient>
+
+              <radialGradient id="btnRed" cx="35%" cy="28%" r="65%"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#991b1b"/></radialGradient>
+              <radialGradient id="btnAmb" cx="35%" cy="28%" r="65%"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#9a3412"/></radialGradient>
+              <radialGradient id="btnGrn" cx="35%" cy="28%" r="65%"><stop offset="0%" stop-color="#10b981"/><stop offset="100%" stop-color="#065f46"/></radialGradient>
+              
+              <linearGradient id="glG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(255,255,255,.3)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></linearGradient>
+              
+              <filter id="sh" ><feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="rgba(0,0,0,.45)"/></filter>
+              <filter id="sh2"><feDropShadow dx="1" dy="3" stdDeviation="4" flood-color="rgba(0,0,0,.35)"/></filter>
+            </defs>
+            
+            <ellipse cx="110" cy="274" rx="46" ry="6" fill="rgba(0,0,0,.5)">
+              <animate attributeName="rx" values="46;52;46" dur="3s" repeatCount="indefinite"/>
+            </ellipse>
+            
+            <path d="M55 168 Q50 232 52 268 L168 268 Q170 232 165 168 Q148 154 110 152 Q72 154 55 168Z" fill="url(#suitGrad)" filter="url(#sh)"/>
+            <path d="M72 158 Q110 150 148 158 Q142 172 110 174 Q78 172 72 158Z" fill="url(#glG)" opacity=".15"/>
+            <path d="M64 182 Q110 175 156 182" stroke="#ffffff" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".4"/>
+            
+            <circle cx="84"  cy="210" r="8" fill="url(#btnRed)" filter="url(#sh2)"/>
+            <circle cx="110" cy="210" r="8" fill="url(#btnAmb)" filter="url(#sh2)"/>
+            <circle cx="136" cy="210" r="8" fill="url(#btnGrn)" filter="url(#sh2)"/>
+            
+            <rect x="84" y="234" width="52" height="18" rx="6" fill="#1e293b" stroke="#ffffff" stroke-width="1"/>
+            <text x="110" y="246" text-anchor="middle" font-family="'Syne',sans-serif" font-size="9" font-weight="800" fill="#ffffff" letter-spacing="1.5">DEO</text>
+            
+            <path d="M57 170 Q30 188 26 220 Q24 238 34 242 Q46 246 52 230 Q58 212 68 186Z" fill="url(#suitGrad)" filter="url(#sh2)"/>
+            <ellipse cx="32" cy="243" rx="12" ry="14" fill="url(#gloveGrad)" stroke="#cbd5e1" stroke-width="1" filter="url(#sh2)"/>
+            
+            <path d="M163 170 Q190 188 194 220 Q196 238 186 242 Q174 246 168 230 Q162 212 152 186Z" fill="url(#suitGrad)" filter="url(#sh2)"/>
+            <ellipse cx="188" cy="243" rx="12" ry="14" fill="url(#gloveGrad)" stroke="#cbd5e1" stroke-width="1" filter="url(#sh2)"/>
+            
+            <ellipse cx="110" cy="153" rx="22" ry="5" fill="#0f172a" filter="url(#sh2)"/>
+            <rect x="95" y="135" width="30" height="20" rx="10" fill="#1e293b" filter="url(#sh2)"/>
+            
+            <ellipse cx="110" cy="80" rx="71" ry="67" fill="url(#helmetGrad)" filter="url(#sh)"/>
+            
+            <text x="110" y="44" text-anchor="middle" dominant-baseline="alphabetic" font-family="'Syne', sans-serif" font-size="19" font-weight="800" fill="#ef4444" filter="url(#sh2)">98</text>
+            
+            <ellipse cx="39"  cy="86" rx="13" ry="16" fill="#dc2626" stroke="#991b1b" stroke-width="1.5" filter="url(#sh2)"/>
+            <path d="M33 82 L43 89 M33 89 L43 95" stroke="#7f1d1d" stroke-width="1.5"/>
+            <ellipse cx="181" cy="86" rx="13" ry="16" fill="#dc2626" stroke="#991b1b" stroke-width="1.5" filter="url(#sh2)"/>
+            <path d="M175 82 L185 89 M175 89 L185 95" stroke="#7f1d1d" stroke-width="1.5"/>
+            
+            <rect x="48" y="54" width="124" height="62" rx="28" fill="#475569" stroke="#e2e8f0" stroke-width="2.5" filter="url(#sh2)"/>
+            
+            <ellipse cx="66"  cy="103" rx="9" ry="5.5" fill="url(#ckG)"/>
+            <ellipse cx="154" cy="103" rx="9" ry="5.5" fill="url(#ckG)"/>
+            
+            <g id="originalClassicEyes">
+              <ellipse cx="84"  cy="86" rx="15" ry="14" fill="#f8fafc"/>
+              <circle  cx="84"  cy="86" r="10"          fill="#1e293b"/>
+              <circle  cx="84"  cy="86" r="6"           fill="#000000"/>
+              <circle  cx="87.5" cy="82" r="2.8"        fill="rgba(255,255,255,.9)"/>
+              
+              <ellipse cx="136" cy="86" rx="15" ry="14" fill="#f8fafc"/>
+              <circle  cx="136" cy="86" r="10"          fill="#1e293b"/>
+              <circle  cx="136" cy="86" r="6"           fill="#000000"/>
+              <circle  cx="139.5" cy="82" r="2.8"        fill="rgba(255,255,255,.9)"/>
+            </g>
+            
+            <path d="M100 104 Q110 112 120 104" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" fill="none" opacity=".95"/>
+            
+            <ellipse id="lidLtop" cx="84"  cy="86" rx="15" ry="0" fill="#475569"/>
+            <ellipse id="lidLbot" cx="84"  cy="86" rx="15" ry="0" fill="#475569"/>
+            <ellipse id="lidRtop" cx="136" cy="86" rx="15" ry="0" fill="#475569"/>
+            <ellipse id="lidRbot" cx="136" cy="86" rx="15" ry="0" fill="#475569"/>
+          </svg>
+        </div>
+        <div class="cleo-label">DEO</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wordmark-section" id="wmSection">
+    <div class="wordmark">
+      <span class="wm-it">IT</span><span class="wm-depot">DEPOT</span>
+    </div>
+    <div class="tagline-row">
+      <span class="tag-left"><strong>SP</strong>rints &nbsp;·&nbsp; <strong>VE</strong>locity &nbsp;·&nbsp; Engine</span>
+      <span class="tag-right">Milestones &nbsp;·&nbsp; Delivery &nbsp;·&nbsp; Tracking</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const rootEl    = document.getElementById('root');
+const cleoSlide = document.getElementById('cleoSlide');
+
+/* ── Typography Layout Balancer ── */
+function fitWordmark() {
+  const wm    = document.querySelector('.wordmark');
+  const avail = rootEl.offsetWidth - 2 * parseFloat(getComputedStyle(rootEl).paddingLeft);
+  wm.style.fontSize = '100px';
+  wm.style.fontSize = Math.floor(100 * avail / wm.scrollWidth) + 'px';
+}
+document.fonts.ready.then(fitWordmark);
+window.addEventListener('resize', fitWordmark);
+
+/* ── Telemetry Speed Blur System ── */
+(function(){
+  const f = document.getElementById('speedField');
+  for (let i = 0; i < 20; i++) {
+    const l = document.createElement('div');
+    l.className = 'speed-line';
+    const width = Math.random() * 140 + 70;
+    l.style.cssText = `top:${Math.random()*100}%;left:-200px;width:${width}px;`;
+    l.style.setProperty('--dur',   (Math.random()*1.5 + 1.0) + 's');
+    l.style.setProperty('--delay', (Math.random()*4) + 's');
+    l.style.setProperty('--op',    (Math.random()*0.25 + 0.05));
+    f.appendChild(l);
+  }
+})();
+
+/* ── Original Robotic Blink Engine ── */
+function blink() {
+  const CLOSE_STEPS=7, OPEN_STEPS=12, CLOSE_DUR=70, OPEN_DUR=150, MAX_RY=14;
+  const eyes = [
+    { top:'lidLtop', bot:'lidLbot', eyeTop:72, eyeBot:100 },
+    { top:'lidRtop', bot:'lidRbot', eyeTop:72, eyeBot:100 }
+  ];
+  function setLids(p) {
+    const ry = p * MAX_RY;
+    eyes.forEach(e => {
+      const t = document.getElementById(e.top), b = document.getElementById(e.bot);
+      if (!t||!b) return;
+      t.setAttribute('ry', ry);    t.setAttribute('cy', e.eyeTop + ry);
+      b.setAttribute('ry', ry*.6); b.setAttribute('cy', e.eyeBot - ry*.6);
+    });
+  }
+  let f = 0;
+  const ci = setInterval(() => {
+    f++; setLids(f / CLOSE_STEPS);
+    if (f >= CLOSE_STEPS) {
+      clearInterval(ci); f = 0;
+      setTimeout(() => {
+        const oi = setInterval(() => {
+          f++; setLids(1 - f / OPEN_STEPS);
+          if (f >= OPEN_STEPS) { clearInterval(oi); setLids(0); setTimeout(blink, 3500 + Math.random()*2500); }
+        }, OPEN_DUR / OPEN_STEPS);
+      }, 50);
+    }
+  }, CLOSE_DUR / CLOSE_STEPS);
+}
+setTimeout(blink, 2000);
+
+/* ── Interactive Lateral Physics ── */
+let cleoX = 0, cleoTarget = 0, mouseActive = false, leftAt = 0, mx = 0;
+
+rootEl.addEventListener('mousemove', e => {
+  mx = e.pageX - rootEl.getBoundingClientRect().left - window.pageXOffset;
+  mouseActive = true;
+});
+rootEl.addEventListener('mouseleave', () => { mouseActive = false; leftAt = Date.now(); });
+rootEl.addEventListener('mouseenter', e => {
+  mx = e.pageX - rootEl.getBoundingClientRect().left - window.pageXOffset;
+  mouseActive = true;
+});
+
+(function tickCleo() {
+  if (mouseActive) {
+    const w   = rootEl.offsetWidth;
+    const amp = Math.max(60, w/2 - (cleoSlide.offsetWidth||120)/2 - 24);
+    cleoTarget = ((mx / w) * 2 - 1) * amp;
+  } else if (Date.now() - leftAt > 1500) {
+    cleoTarget = 0;
+  }
+  cleoX += (cleoTarget - cleoX) * 0.08;
+  cleoSlide.style.transform = `translateX(${cleoX}px)`;
+  requestAnimationFrame(tickCleo);
+})();
+
+/* ── Repelled Performance Vectors ── */
+const ICONS = [
+  /* Tachometer */   `<svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 1 7.54 16.59"></path><path d="M21.16 11a10 10 0 0 0-18.32 0"></path><path d="M12 14l4-4"></path><circle cx="12" cy="14" r="1"></circle></svg>`,
+  /* Winner Flag */  `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>`,
+  /* Chrono Meter */ `<svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"></circle><line x1="12" y1="5" x2="12" y2="1"></line><line x1="10" y1="1" x2="14" y2="1"></line><polyline points="12 9 12 13 14 13"></polyline></svg>`,
+  /* Pit Wrench */   `<svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>`,
+  /* Track Telemetry */`<svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-8"></path><path d="M17 20v-4"></path><path d="M7 20v-4"></path><path d="M2 20h20"></path><path d="M22 7l-7 5-4-3-9 7"></path></svg>`,
+  /* Racing Apex */  `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path><path d="M2 12h20"></path></svg>`
+];
+const ICON_POS = [[0.06,8],[0.18,44],[0.29,22],[0.71,18],[0.83,44],[0.94,10]];
+const layer = document.getElementById('icon-layer');
+const SZ=32, REPEL=120, FORCE=5.5, FRIC=0.86, SPRING=0.06;
+let particles = [];
+
+function buildParticles() {
+  layer.innerHTML = ''; particles = [];
+  const wm = document.getElementById('wmSection');
+  const ci = document.getElementById('cleoInner');
+  if (!wm||!ci) return;
+  const wR  = wm.getBoundingClientRect();
+  const cR  = ci.getBoundingClientRect();
+  const cCY = cR.top + cR.height * 0.42;
+  ICON_POS.forEach(([xr, yo], i) => {
+    const ox = wR.left + wR.width * xr;
+    const oy = cCY + yo;
+    const el = document.createElement('div');
+    el.className = 'ficon';
+    el.innerHTML = ICONS[i];
+    el.style.left    = (ox - SZ/2) + 'px';
+    el.style.top     = (oy - SZ/2) + 'px';
+    el.style.opacity = '0.85';
+    layer.appendChild(el);
+    particles.push({ el, ox, oy, x:ox, y:oy, vx:0, vy:0 });
+  });
+}
+
+(function tickIcons() {
+  const cs = cleoSlide.getBoundingClientRect();
+  const cX = cs.left + cs.width  / 2;
+  const cY = cs.top  + cs.height * 0.42;
+  particles.forEach(p => {
+    const dx = p.x-cX, dy = p.y-cY, d = Math.hypot(dx, dy);
+    if (d < REPEL && d > 1) { const f = (REPEL-d)/REPEL*FORCE; p.vx += dx/d*f; p.vy += dy/d*f; }
+    p.vx += (p.ox - p.x) * SPRING;
+    p.vy += (p.oy - p.y) * SPRING;
+    p.vx *= FRIC; p.vy *= FRIC;
+    p.x  += p.vx; p.y  += p.vy;
+    p.el.style.left    = (p.x - SZ/2) + 'px';
+    p.el.style.top     = (p.y - SZ/2) + 'px';
+    p.el.style.opacity = Math.min(0.7 + Math.hypot(p.vx, p.vy) * 0.05, 1);
+  });
+  requestAnimationFrame(tickIcons);
+})();
+
+buildParticles();
+setTimeout(buildParticles, 400);
+window.addEventListener('resize', buildParticles);
+</script>
+</body>
+</html>
